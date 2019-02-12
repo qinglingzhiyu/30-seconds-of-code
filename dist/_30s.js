@@ -149,6 +149,7 @@
     bgWhite: `\x1b[47m${args.join(' ')}\x1b[0m`
   });
   const compact = arr => arr.filter(Boolean);
+  const compactWhitespace = str => str.replace(/\s{2,}/g, ' ');
   const compose = (...fns) => fns.reduce((f, g) => (...args) => f(g(...args)));
   const composeRight = (...fns) => fns.reduce((f, g) => (...args) => g(f(...args)));
   const converge = (converger, fns) => (...args) => converger(...fns.map(fn => fn.apply(null, args)));
@@ -186,6 +187,7 @@
       }, Math.abs(Math.floor(duration / (end - start))));
     return timer;
   };
+  const createDirIfNotExists = dir => (!fs.existsSync(dir) ? fs.mkdirSync(dir) : undefined);
   const createElement = str => {
     const el = document.createElement('div');
     el.innerHTML = str;
@@ -224,7 +226,11 @@
     Object.keys(clone).forEach(
       key => (clone[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
     );
-    return Array.isArray(obj) ? (clone.length = obj.length) && Array.from(clone) : clone;
+    return Array.isArray(obj) && obj.length
+      ? (clone.length = obj.length) && Array.from(clone)
+      : Array.isArray(obj)
+        ? Array.from(obj)
+        : clone;
   };
   const deepFlatten = arr => [].concat(...arr.map(v => (Array.isArray(v) ? deepFlatten(v) : v)));
   const deepFreeze = obj =>
@@ -237,11 +243,11 @@
       ? obj.map(val => deepMapKeys(val, f))
       : typeof obj === 'object'
         ? Object.keys(obj).reduce((acc, current) => {
-          const val = obj[current];
-          acc[f(current)] =
+            const val = obj[current];
+            acc[f(current)] =
               val !== null && typeof val === 'object' ? deepMapKeys(val, f) : (acc[f(current)] = val);
-          return acc;
-        }, {})
+            return acc;
+          }, {})
         : obj;
   const defaults = (obj, ...defs) => Object.assign({}, obj, ...defs.reverse(), obj);
   const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
@@ -264,9 +270,9 @@
     target in obj
       ? obj[target]
       : Object.values(obj).reduce((acc, val) => {
-        if (acc !== undefined) return acc;
-        if (typeof val === 'object') return dig(val, target);
-      }, undefined);
+          if (acc !== undefined) return acc;
+          if (typeof val === 'object') return dig(val, target);
+        }, undefined);
   const digitize = n => [...`${n}`].map(i => parseInt(i));
   const distance = (x0, y0, x1, y1) => Math.hypot(x1 - x0, y1 - y0);
   const drop = (arr, n = 1) => arr.slice(n);
@@ -338,8 +344,8 @@
   const factorial = n =>
     n < 0
       ? (() => {
-        throw new TypeError('Negative numbers are not allowed!');
-      })()
+          throw new TypeError('Negative numbers are not allowed!');
+        })()
       : n <= 1
         ? 1
         : n * factorial(n - 1);
@@ -983,9 +989,9 @@
   const remove = (arr, func) =>
     Array.isArray(arr)
       ? arr.filter(func).reduce((acc, val) => {
-        arr.splice(arr.indexOf(val), 1);
-        return acc.concat(val);
-      }, [])
+          arr.splice(arr.indexOf(val), 1);
+          return acc.concat(val);
+        }, [])
       : [];
   const removeNonASCII = str => str.replace(/[^\x20-\x7E]/g, '');
   const renameKeys = (keysMap, obj) =>
@@ -1229,13 +1235,10 @@
       .map(x => x.charAt(0).toUpperCase() + x.slice(1))
       .join(' ');
   const toggleClass = (el, className) => el.classList.toggle(className);
-  const tomorrow = (long = false) => {
+  const tomorrow = () => {
     let t = new Date();
     t.setDate(t.getDate() + 1);
-    const ret = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(
-    t.getDate()
-  ).padStart(2, '0')}`;
-    return !long ? ret : `${ret}T00:00:00`;
+    return t.toISOString().split('T')[0];
   };
   const transform = (obj, fn, acc) => Object.keys(obj).reduce((a, k) => fn(a, obj[k], k, obj), acc);
   const triggerEvent = (el, eventType, detail) =>
@@ -1385,6 +1388,7 @@
   exports.collectInto = collectInto;
   exports.colorize = colorize;
   exports.compact = compact;
+  exports.compactWhitespace = compactWhitespace;
   exports.compose = compose;
   exports.composeRight = composeRight;
   exports.converge = converge;
@@ -1392,6 +1396,7 @@
   exports.countBy = countBy;
   exports.countOccurrences = countOccurrences;
   exports.counter = counter;
+  exports.createDirIfNotExists = createDirIfNotExists;
   exports.createElement = createElement;
   exports.createEventHub = createEventHub;
   exports.currentURL = currentURL;

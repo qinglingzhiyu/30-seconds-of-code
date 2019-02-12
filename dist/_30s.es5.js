@@ -410,6 +410,9 @@
   var compact = function compact(arr) {
     return arr.filter(Boolean);
   };
+  var compactWhitespace = function compactWhitespace(str) {
+    return str.replace(/\s{2,}/g, ' ');
+  };
   var compose = function compose() {
     for (var _len15 = arguments.length, fns = new Array(_len15), _key15 = 0; _key15 < _len15; _key15++) {
       fns[_key15] = arguments[_key15];
@@ -488,6 +491,9 @@
 
     return timer;
   };
+  var createDirIfNotExists = function createDirIfNotExists(dir) {
+    return !fs.existsSync(dir) ? fs.mkdirSync(dir) : undefined;
+  };
   var createElement = function createElement(str) {
     var el = document.createElement('div');
     el.innerHTML = str;
@@ -557,7 +563,7 @@
     Object.keys(clone).forEach(function (key) {
       return clone[key] = _typeof(obj[key]) === 'object' ? deepClone(obj[key]) : obj[key];
     });
-    return Array.isArray(obj) ? (clone.length = obj.length) && Array.from(clone) : clone;
+    return Array.isArray(obj) && obj.length ? (clone.length = obj.length) && Array.from(clone) : Array.isArray(obj) ? Array.from(obj) : clone;
   };
   var deepFlatten = function deepFlatten(arr) {
     var _ref5;
@@ -2370,11 +2376,9 @@
     return el.classList.toggle(className);
   };
   var tomorrow = function tomorrow() {
-    var long = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
     var t = new Date();
     t.setDate(t.getDate() + 1);
-    var ret = "".concat(t.getFullYear(), "-").concat(String(t.getMonth() + 1).padStart(2, '0'), "-").concat(String(t.getDate()).padStart(2, '0'));
-    return !long ? ret : "".concat(ret, "T00:00:00");
+    return t.toISOString().split('T')[0];
   };
   var transform = function transform(obj, fn, acc) {
     return Object.keys(obj).reduce(function (a, k) {
@@ -2639,6 +2643,7 @@
   exports.collectInto = collectInto;
   exports.colorize = colorize;
   exports.compact = compact;
+  exports.compactWhitespace = compactWhitespace;
   exports.compose = compose;
   exports.composeRight = composeRight;
   exports.converge = converge;
@@ -2646,6 +2651,7 @@
   exports.countBy = countBy;
   exports.countOccurrences = countOccurrences;
   exports.counter = counter;
+  exports.createDirIfNotExists = createDirIfNotExists;
   exports.createElement = createElement;
   exports.createEventHub = createEventHub;
   exports.currentURL = currentURL;

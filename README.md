@@ -3,7 +3,7 @@
 # 30 seconds of code
 
 [![License](https://img.shields.io/badge/license-CC0--1.0-blue.svg)](https://github.com/30-seconds/30-seconds-of-code/blob/master/LICENSE) [![npm Downloads](https://img.shields.io/npm/dt/30-seconds-of-code.svg)](https://www.npmjs.com/package/30-seconds-of-code) [![npm Version](https://img.shields.io/npm/v/30-seconds-of-code.svg)](https://www.npmjs.com/package/30-seconds-of-code) [![Known Vulnerabilities](https://snyk.io/test/github/30-seconds/30-seconds-of-code/badge.svg?targetFile=package.json)](https://snyk.io/test/github/30-seconds/30-seconds-of-code?targetFile=package.json) <br/> 
-[![Travis Build](https://travis-ci.com/30-seconds/30-seconds-of-code.svg?branch=master)](https://travis-ci.com/30-seconds/30-seconds-of-code) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6ab7791fb1ea40b4a576d658fb96807f)](https://www.codacy.com/app/Chalarangelo/30-seconds-of-code?utm_source=github.com&utm_medium=referral&utm_content=30-seconds/30-seconds-of-code&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/4b8c1e099135f2d53413/maintainability)](https://codeclimate.com/github/30-seconds/30-seconds-of-code/maintainability) [![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg)](https://github.com/Flet/semistandard) <br/>
+[![Travis Build](https://travis-ci.com/30-seconds/30-seconds-of-code.svg?branch=master)](https://travis-ci.com/30-seconds/30-seconds-of-code) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6ab7791fb1ea40b4a576d658fb96807f)](https://www.codacy.com/app/Chalarangelo/30-seconds-of-code?utm_source=github.com&utm_medium=referral&utm_content=30-seconds/30-seconds-of-code&utm_campaign=Badge_Grade) [![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg)](https://github.com/Flet/semistandard) <br/>
 [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) [![ProductHunt](https://img.shields.io/badge/producthunt-vote-orange.svg)](https://www.producthunt.com/posts/30-seconds-of-code) [![Gitter chat](https://img.shields.io/badge/chat-on%20gitter-4FB999.svg)](https://gitter.im/30-seconds-of-code/Lobby) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 > Curated collection of useful JavaScript snippets that you can understand in 30 seconds or less.
@@ -24,6 +24,8 @@
 * [30 Seconds of React](https://github.com/30-seconds/30-seconds-of-react)
 * [30 Seconds of Python](https://github.com/kriadmin/30-seconds-of-python-code) _(unofficial)_
 * [30 Seconds of PHP](https://github.com/appzcoder/30-seconds-of-php-code) _(unofficial)_
+* [30 Seconds of Kotlin](https://github.com/IvanMwiruki/30-seconds-of-kotlin) _(unofficial)_
+* [30 Seconds of Knowledge](https://chrome.google.com/webstore/detail/30-seconds-of-knowledge/mmgplondnjekobonklacmemikcnhklla) _(unofficial)_
 
 #### Package
 
@@ -341,6 +343,7 @@ _30s.average(1, 2, 3);
 * [`atob`](#atob)
 * [`btoa`](#btoa)
 * [`colorize`](#colorize)
+* [`createDirIfNotExists`](#createdirifnotexists)
 * [`hasFlags`](#hasflags)
 * [`hashNode`](#hashnode)
 * [`isDuplexStream`](#isduplexstream)
@@ -406,6 +409,7 @@ _30s.average(1, 2, 3);
 * [`byteSize`](#bytesize)
 * [`capitalize`](#capitalize)
 * [`capitalizeEveryWord`](#capitalizeeveryword)
+* [`compactWhitespace`](#compactwhitespace)
 * [`CSVToArray`](#csvtoarray)
 * [`CSVToJSON`](#csvtojson-)
 * [`decapitalize`](#decapitalize)
@@ -664,14 +668,13 @@ const pipeAsyncFunctions = (...fns) => arg => fns.reduce((p, f) => p.then(f), Pr
 <summary>Examples</summary>
 
 ```js
-
 const sum = pipeAsyncFunctions(
   x => x + 1,
   x => new Promise(resolve => setTimeout(() => resolve(x + 2), 1000)),
   x => x + 3,
   async x => (await x) + 4
 );
-(async() => {
+(async () => {
   console.log(await sum(5)); // 15 (after one second)
 })();
 ```
@@ -2313,13 +2316,12 @@ Use `Array.prototype.filter()` to find array elements that return truthy values 
 The `func` is invoked with three arguments (`value, index, array`).
 
 ```js
-
 const remove = (arr, func) =>
   Array.isArray(arr)
     ? arr.filter(func).reduce((acc, val) => {
-      arr.splice(arr.indexOf(val), 1);
-      return acc.concat(val);
-    }, [])
+        arr.splice(arr.indexOf(val), 1);
+        return acc.concat(val);
+      }, [])
     : [];
 ```
 
@@ -4492,16 +4494,14 @@ minDate(array); // 2016-01-08T22:00:00.000Z
 
 Results in a string representation of tomorrow's date.
 
-Use `new Date()` to get today's date, adding one day using `Date.getDate()` and `Date.setDate()`, and converting the Date object to a string.
+Use `new Date()` to get the current date, increment by one using `Date.getDate()` and set the value to the result using `Date.setDate()`. 
+Use `Date.prototype.toISOString()` to return a string in `yyyy-mm-dd` format.
 
 ```js
-const tomorrow = (long = false) => {
+const tomorrow = () => {
   let t = new Date();
   t.setDate(t.getDate() + 1);
-  const ret = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(
-    t.getDate()
-  ).padStart(2, '0')}`;
-  return !long ? ret : `${ret}T00:00:00`;
+  return t.toISOString().split('T')[0];
 };
 ```
 
@@ -4509,8 +4509,7 @@ const tomorrow = (long = false) => {
 <summary>Examples</summary>
 
 ```js
-tomorrow(); // 2017-12-27 (if current date is 2017-12-26)
-tomorrow(true); // 2017-12-27T00:00:00 (if current date is 2017-12-26)
+tomorrow(); // 2018-10-18 (if current date is 2018-10-18)
 ```
 
 </details>
@@ -5503,8 +5502,8 @@ Throws an exception if `n` is a negative number.
 const factorial = n =>
   n < 0
     ? (() => {
-      throw new TypeError('Negative numbers are not allowed!');
-    })()
+        throw new TypeError('Negative numbers are not allowed!');
+      })()
     : n <= 1
       ? 1
       : n * factorial(n - 1);
@@ -6322,6 +6321,28 @@ console.log(colorize(colorize('foo').yellow, colorize('foo').green).bgWhite); //
 
 <br>[⬆ Back to top](#contents)
 
+### createDirIfNotExists
+
+Creates a directory, if it does not exist.
+
+Use `fs.existsSync()` to check if the directory exists, `fs.mkdirSync()` to create it.
+
+```js
+const fs = require('fs');
+const createDirIfNotExists = dir => (!fs.existsSync(dir) ? fs.mkdirSync(dir) : undefined);
+```
+
+<details>
+<summary>Examples</summary>
+
+```js
+createDirIfNotExists('test'); // creates the directory 'test', if it doesn't exist
+```
+
+</details>
+
+<br>[⬆ Back to top](#contents)
+
 ### hasFlags
 
 Check if the current process's arguments contain the specified flags.
@@ -6352,7 +6373,7 @@ hasFlags('special'); // false
 
 Creates a hash for a value using the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) algorithm. Returns a promise.
 
-Use `crypto` API to create a hash for the given value.
+Use `crypto` API to create a hash for the given value, `setTimeout` to prevent blocking on a long operation, and a `Promise` to give it a familiar interface.
 
 ```js
 const crypto = require('crypto');
@@ -6672,7 +6693,11 @@ const deepClone = obj => {
   Object.keys(clone).forEach(
     key => (clone[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
   );
-  return Array.isArray(obj) ? (clone.length = obj.length) && Array.from(clone) : clone;
+  return Array.isArray(obj) && obj.length
+    ? (clone.length = obj.length) && Array.from(clone)
+    : Array.isArray(obj)
+      ? Array.from(obj)
+      : clone;
 };
 ```
 
@@ -6733,11 +6758,11 @@ const deepMapKeys = (obj, f) =>
     ? obj.map(val => deepMapKeys(val, f))
     : typeof obj === 'object'
       ? Object.keys(obj).reduce((acc, current) => {
-        const val = obj[current];
-        acc[f(current)] =
+          const val = obj[current];
+          acc[f(current)] =
             val !== null && typeof val === 'object' ? deepMapKeys(val, f) : (acc[f(current)] = val);
-        return acc;
-      }, {})
+          return acc;
+        }, {})
       : obj;
 ```
 
@@ -6811,9 +6836,9 @@ const dig = (obj, target) =>
   target in obj
     ? obj[target]
     : Object.values(obj).reduce((acc, val) => {
-      if (acc !== undefined) return acc;
-      if (typeof val === 'object') return dig(val, target);
-    }, undefined);
+        if (acc !== undefined) return acc;
+        if (typeof val === 'object') return dig(val, target);
+      }, undefined);
 ```
 
 <details>
@@ -7722,6 +7747,28 @@ const capitalizeEveryWord = str => str.replace(/\b[a-z]/g, char => char.toUpperC
 
 ```js
 capitalizeEveryWord('hello world!'); // 'Hello World!'
+```
+
+</details>
+
+<br>[⬆ Back to top](#contents)
+
+### compactWhitespace
+
+Returns a string with whitespaces compacted.
+
+Use `String.prototype.replace()` with a regular expression to replace all occurences of 2 or more whitespace characters with a single space.
+
+```js
+const compactWhitespace = str => str.replace(/\s{2,}/g, ' ');
+```
+
+<details>
+<summary>Examples</summary>
+
+```js
+compactWhitespace('Lorem    Ipsum'); // 'Lorem Ipsum'
+compactWhitespace('Lorem \n Ipsum'); // 'Lorem Ipsum'
 ```
 
 </details>

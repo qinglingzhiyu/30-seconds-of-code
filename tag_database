@@ -31,6 +31,7 @@ coalesceFactory:utility,intermediate
 collectInto:adapter,function,array,intermediate
 colorize:node,utility,string,intermediate
 compact:array,beginner
+compactWhitespace:string,regexp,beginner
 compose:function,intermediate
 composeRight:function,intermediate
 converge:function,intermediate
@@ -38,6 +39,7 @@ copyToClipboard:browser,string,advanced
 countBy:array,object,intermediate
 counter:browser,advanced
 countOccurrences:array,intermediate
+createDirIfNotExists:node,beginner
 createElement:browser,utility,beginner
 createEventHub:browser,event,advanced
 CSVToArray:string,array,utility,intermediate

@@ -145,6 +145,7 @@ const colorize = (...args) => ({
   bgWhite: `\x1b[47m${args.join(' ')}\x1b[0m`
 });
 const compact = arr => arr.filter(Boolean);
+const compactWhitespace = str => str.replace(/\s{2,}/g, ' ');
 const compose = (...fns) => fns.reduce((f, g) => (...args) => f(g(...args)));
 const composeRight = (...fns) => fns.reduce((f, g) => (...args) => g(f(...args)));
 const converge = (converger, fns) => (...args) => converger(...fns.map(fn => fn.apply(null, args)));
@@ -182,6 +183,8 @@ const counter = (selector, start, end, step = 1, duration = 2000) => {
     }, Math.abs(Math.floor(duration / (end - start))));
   return timer;
 };
+
+const createDirIfNotExists = dir => (!fs.existsSync(dir) ? fs.mkdirSync(dir) : undefined);
 const createElement = str => {
   const el = document.createElement('div');
   el.innerHTML = str;
@@ -220,7 +223,11 @@ const deepClone = obj => {
   Object.keys(clone).forEach(
     key => (clone[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key])
   );
-  return Array.isArray(obj) ? (clone.length = obj.length) && Array.from(clone) : clone;
+  return Array.isArray(obj) && obj.length
+    ? (clone.length = obj.length) && Array.from(clone)
+    : Array.isArray(obj)
+      ? Array.from(obj)
+      : clone;
 };
 const deepFlatten = arr => [].concat(...arr.map(v => (Array.isArray(v) ? deepFlatten(v) : v)));
 const deepFreeze = obj =>
@@ -233,11 +240,11 @@ const deepMapKeys = (obj, f) =>
     ? obj.map(val => deepMapKeys(val, f))
     : typeof obj === 'object'
       ? Object.keys(obj).reduce((acc, current) => {
-        const val = obj[current];
-        acc[f(current)] =
+          const val = obj[current];
+          acc[f(current)] =
             val !== null && typeof val === 'object' ? deepMapKeys(val, f) : (acc[f(current)] = val);
-        return acc;
-      }, {})
+          return acc;
+        }, {})
       : obj;
 const defaults = (obj, ...defs) => Object.assign({}, obj, ...defs.reverse(), obj);
 const defer = (fn, ...args) => setTimeout(fn, 1, ...args);
@@ -260,9 +267,9 @@ const dig = (obj, target) =>
   target in obj
     ? obj[target]
     : Object.values(obj).reduce((acc, val) => {
-      if (acc !== undefined) return acc;
-      if (typeof val === 'object') return dig(val, target);
-    }, undefined);
+        if (acc !== undefined) return acc;
+        if (typeof val === 'object') return dig(val, target);
+      }, undefined);
 const digitize = n => [...`${n}`].map(i => parseInt(i));
 const distance = (x0, y0, x1, y1) => Math.hypot(x1 - x0, y1 - y0);
 const drop = (arr, n = 1) => arr.slice(n);
@@ -334,8 +341,8 @@ const extendHex = shortHex =>
 const factorial = n =>
   n < 0
     ? (() => {
-      throw new TypeError('Negative numbers are not allowed!');
-    })()
+        throw new TypeError('Negative numbers are not allowed!');
+      })()
     : n <= 1
       ? 1
       : n * factorial(n - 1);
@@ -978,13 +985,12 @@ const reducedFilter = (data, keys, fn) =>
     }, {})
   );
 const reject = (pred, array) => array.filter((...args) => !pred(...args));
-
 const remove = (arr, func) =>
   Array.isArray(arr)
     ? arr.filter(func).reduce((acc, val) => {
-      arr.splice(arr.indexOf(val), 1);
-      return acc.concat(val);
-    }, [])
+        arr.splice(arr.indexOf(val), 1);
+        return acc.concat(val);
+      }, [])
     : [];
 const removeNonASCII = str => str.replace(/[^\x20-\x7E]/g, '');
 const renameKeys = (keysMap, obj) =>
@@ -1228,13 +1234,10 @@ const toTitleCase = str =>
     .map(x => x.charAt(0).toUpperCase() + x.slice(1))
     .join(' ');
 const toggleClass = (el, className) => el.classList.toggle(className);
-const tomorrow = (long = false) => {
+const tomorrow = () => {
   let t = new Date();
   t.setDate(t.getDate() + 1);
-  const ret = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(
-    t.getDate()
-  ).padStart(2, '0')}`;
-  return !long ? ret : `${ret}T00:00:00`;
+  return t.toISOString().split('T')[0];
 };
 const transform = (obj, fn, acc) => Object.keys(obj).reduce((a, k) => fn(a, obj[k], k, obj), acc);
 const triggerEvent = (el, eventType, detail) =>
@@ -1508,4 +1511,4 @@ const speechSynthesis = message => {
 const squareSum = (...args) => args.reduce((squareSum, number) => squareSum + Math.pow(number, 2), 0);
 
 
-module.exports = {CSVToArray,CSVToJSON,JSONToFile,JSONtoCSV,RGBToHex,URLJoin,UUIDGeneratorBrowser,UUIDGeneratorNode,all,allEqual,any,approximatelyEqual,arrayToCSV,arrayToHtmlList,ary,atob,attempt,average,averageBy,bifurcate,bifurcateBy,bind,bindAll,bindKey,binomialCoefficient,bottomVisible,btoa,byteSize,call,capitalize,capitalizeEveryWord,castArray,chainAsync,chunk,clampNumber,cloneRegExp,coalesce,coalesceFactory,collectInto,colorize,compact,compose,composeRight,converge,copyToClipboard,countBy,countOccurrences,counter,createElement,createEventHub,currentURL,curry,dayOfYear,debounce,decapitalize,deepClone,deepFlatten,deepFreeze,deepMapKeys,defaults,defer,degreesToRads,delay,detectDeviceType,difference,differenceBy,differenceWith,dig,digitize,distance,drop,dropRight,dropRightWhile,dropWhile,elementContains,elementIsVisibleInViewport,elo,equals,escapeHTML,escapeRegExp,everyNth,extendHex,factorial,fibonacci,filterFalsy,filterNonUnique,filterNonUniqueBy,findKey,findLast,findLastIndex,findLastKey,flatten,flattenObject,flip,forEachRight,forOwn,forOwnRight,formatDuration,fromCamelCase,functionName,functions,gcd,geometricProgression,get,getColonTimeFromDate,getDaysDiffBetweenDates,getImages,getMeridiemSuffixOfInteger,getScrollPosition,getStyle,getType,getURLParameters,groupBy,hammingDistance,hasClass,hasFlags,hashBrowser,hashNode,head,hexToRGB,hide,httpGet,httpPost,httpsRedirect,hz,inRange,indentString,indexOfAll,initial,initialize2DArray,initializeArrayWithRange,initializeArrayWithRangeRight,initializeArrayWithValues,initializeNDArray,insertAfter,insertBefore,intersection,intersectionBy,intersectionWith,invertKeyValues,is,isAbsoluteURL,isAfterDate,isAnagram,isArrayLike,isBeforeDate,isBoolean,isBrowser,isBrowserTabFocused,isDivisible,isDuplexStream,isEmpty,isEven,isFunction,isLowerCase,isNegativeZero,isNil,isNull,isNumber,isObject,isObjectLike,isPlainObject,isPrime,isPrimitive,isPromiseLike,isReadableStream,isSameDate,isSorted,isStream,isString,isSymbol,isTravisCI,isUndefined,isUpperCase,isValidJSON,isWritableStream,join,last,lcm,longestItem,lowercaseKeys,luhnCheck,mapKeys,mapObject,mapString,mapValues,mask,matches,matchesWith,maxBy,maxDate,maxN,median,memoize,merge,midpoint,minBy,minDate,minN,mostPerformant,negate,nest,nodeListToArray,none,nthArg,nthElement,objectFromPairs,objectToPairs,observeMutations,off,offset,omit,omitBy,on,onUserInputChange,once,orderBy,over,overArgs,pad,palindrome,parseCookie,partial,partialRight,partition,percentile,permutations,pick,pickBy,pipeAsyncFunctions,pipeFunctions,pluralize,powerset,prefix,prettyBytes,primes,promisify,pull,pullAtIndex,pullAtValue,pullBy,radsToDegrees,randomHexColorCode,randomIntArrayInRange,randomIntegerInRange,randomNumberInRange,readFileLines,rearg,recordAnimationFrames,redirect,reduceSuccessive,reduceWhich,reducedFilter,reject,remove,removeNonASCII,renameKeys,reverseString,round,runAsync,runPromisesInSeries,sample,sampleSize,scrollToTop,sdbm,serializeCookie,setStyle,shallowClone,shank,show,shuffle,similarity,size,sleep,smoothScroll,sortCharactersInString,sortedIndex,sortedIndexBy,sortedLastIndex,sortedLastIndexBy,splitLines,spreadOver,stableSort,standardDeviation,stringPermutations,stripHTMLTags,sum,sumBy,sumPower,symmetricDifference,symmetricDifferenceBy,symmetricDifferenceWith,tail,take,takeRight,takeRightWhile,takeWhile,throttle,timeTaken,times,toCamelCase,toCurrency,toDecimalMark,toHash,toKebabCase,toOrdinalSuffix,toSafeInteger,toSnakeCase,toTitleCase,toggleClass,tomorrow,transform,triggerEvent,truncateString,truthCheckCollection,unary,uncurry,unescapeHTML,unflattenObject,unfold,union,unionBy,unionWith,uniqueElements,uniqueElementsBy,uniqueElementsByRight,uniqueSymmetricDifference,untildify,unzip,unzipWith,validateNumber,when,without,words,xProd,yesNo,zip,zipObject,zipWith,JSONToDate,binarySearch,celsiusToFahrenheit,cleanObj,collatz,countVowels,factors,fahrenheitToCelsius,fibonacciCountUntilNum,fibonacciUntilNum,heronArea,howManyTimes,httpDelete,httpPut,isArmstrongNumber,isSimilar,kmphToMph,levenshteinDistance,mphToKmph,pipeLog,quickSort,removeVowels,solveRPN,speechSynthesis,squareSum}
+module.exports = {CSVToArray,CSVToJSON,JSONToFile,JSONtoCSV,RGBToHex,URLJoin,UUIDGeneratorBrowser,UUIDGeneratorNode,all,allEqual,any,approximatelyEqual,arrayToCSV,arrayToHtmlList,ary,atob,attempt,average,averageBy,bifurcate,bifurcateBy,bind,bindAll,bindKey,binomialCoefficient,bottomVisible,btoa,byteSize,call,capitalize,capitalizeEveryWord,castArray,chainAsync,chunk,clampNumber,cloneRegExp,coalesce,coalesceFactory,collectInto,colorize,compact,compactWhitespace,compose,composeRight,converge,copyToClipboard,countBy,countOccurrences,counter,createDirIfNotExists,createElement,createEventHub,currentURL,curry,dayOfYear,debounce,decapitalize,deepClone,deepFlatten,deepFreeze,deepMapKeys,defaults,defer,degreesToRads,delay,detectDeviceType,difference,differenceBy,differenceWith,dig,digitize,distance,drop,dropRight,dropRightWhile,dropWhile,elementContains,elementIsVisibleInViewport,elo,equals,escapeHTML,escapeRegExp,everyNth,extendHex,factorial,fibonacci,filterFalsy,filterNonUnique,filterNonUniqueBy,findKey,findLast,findLastIndex,findLastKey,flatten,flattenObject,flip,forEachRight,forOwn,forOwnRight,formatDuration,fromCamelCase,functionName,functions,gcd,geometricProgression,get,getColonTimeFromDate,getDaysDiffBetweenDates,getImages,getMeridiemSuffixOfInteger,getScrollPosition,getStyle,getType,getURLParameters,groupBy,hammingDistance,hasClass,hasFlags,hashBrowser,hashNode,head,hexToRGB,hide,httpGet,httpPost,httpsRedirect,hz,inRange,indentString,indexOfAll,initial,initialize2DArray,initializeArrayWithRange,initializeArrayWithRangeRight,initializeArrayWithValues,initializeNDArray,insertAfter,insertBefore,intersection,intersectionBy,intersectionWith,invertKeyValues,is,isAbsoluteURL,isAfterDate,isAnagram,isArrayLike,isBeforeDate,isBoolean,isBrowser,isBrowserTabFocused,isDivisible,isDuplexStream,isEmpty,isEven,isFunction,isLowerCase,isNegativeZero,isNil,isNull,isNumber,isObject,isObjectLike,isPlainObject,isPrime,isPrimitive,isPromiseLike,isReadableStream,isSameDate,isSorted,isStream,isString,isSymbol,isTravisCI,isUndefined,isUpperCase,isValidJSON,isWritableStream,join,last,lcm,longestItem,lowercaseKeys,luhnCheck,mapKeys,mapObject,mapString,mapValues,mask,matches,matchesWith,maxBy,maxDate,maxN,median,memoize,merge,midpoint,minBy,minDate,minN,mostPerformant,negate,nest,nodeListToArray,none,nthArg,nthElement,objectFromPairs,objectToPairs,observeMutations,off,offset,omit,omitBy,on,onUserInputChange,once,orderBy,over,overArgs,pad,palindrome,parseCookie,partial,partialRight,partition,percentile,permutations,pick,pickBy,pipeAsyncFunctions,pipeFunctions,pluralize,powerset,prefix,prettyBytes,primes,promisify,pull,pullAtIndex,pullAtValue,pullBy,radsToDegrees,randomHexColorCode,randomIntArrayInRange,randomIntegerInRange,randomNumberInRange,readFileLines,rearg,recordAnimationFrames,redirect,reduceSuccessive,reduceWhich,reducedFilter,reject,remove,removeNonASCII,renameKeys,reverseString,round,runAsync,runPromisesInSeries,sample,sampleSize,scrollToTop,sdbm,serializeCookie,setStyle,shallowClone,shank,show,shuffle,similarity,size,sleep,smoothScroll,sortCharactersInString,sortedIndex,sortedIndexBy,sortedLastIndex,sortedLastIndexBy,splitLines,spreadOver,stableSort,standardDeviation,stringPermutations,stripHTMLTags,sum,sumBy,sumPower,symmetricDifference,symmetricDifferenceBy,symmetricDifferenceWith,tail,take,takeRight,takeRightWhile,takeWhile,throttle,timeTaken,times,toCamelCase,toCurrency,toDecimalMark,toHash,toKebabCase,toOrdinalSuffix,toSafeInteger,toSnakeCase,toTitleCase,toggleClass,tomorrow,transform,triggerEvent,truncateString,truthCheckCollection,unary,uncurry,unescapeHTML,unflattenObject,unfold,union,unionBy,unionWith,uniqueElements,uniqueElementsBy,uniqueElementsByRight,uniqueSymmetricDifference,untildify,unzip,unzipWith,validateNumber,when,without,words,xProd,yesNo,zip,zipObject,zipWith,JSONToDate,binarySearch,celsiusToFahrenheit,cleanObj,collatz,countVowels,factors,fahrenheitToCelsius,fibonacciCountUntilNum,fibonacciUntilNum,heronArea,howManyTimes,httpDelete,httpPut,isArmstrongNumber,isSimilar,kmphToMph,levenshteinDistance,mphToKmph,pipeLog,quickSort,removeVowels,solveRPN,speechSynthesis,squareSum}
